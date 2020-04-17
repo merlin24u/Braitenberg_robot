@@ -11,7 +11,11 @@
 namespace gazebo
 {
   // Constructor
-  GazeboRosLight::GazeboRosLight(): n("light_sensor_plugin"), fov(6), range(10){
+  GazeboRosLight::GazeboRosLight(): n("light_sensor_plugin"), it(n), fov(6), range(10){
+    // Subscrive to input video feed
+    image_sub = it.subscribe("/camera/rgb/image_raw", 100,
+			     &gazebo::GazeboRosLight::imagePub, this);
+
     sensorPublisher = n.advertise<sensor_msgs::Illuminance>("lightSensor", 1);
   }
 
@@ -44,11 +48,10 @@ namespace gazebo
   }
 
   // Update the controller
-  void GazeboRosLight::OnNewFrame(const unsigned char *image,
-				  unsigned int width, unsigned int height, unsigned int depth,
-				  const std::string &format){
-    static int seq = 0;
-
+  void GazeboRosLight::OnNewFrame(const unsigned char *_image,
+				  unsigned int _width, unsigned int _height, unsigned int _depth,
+				  const std::string &_format){
+    
     this->sensor_update_time_ = this->parentSensor_->LastUpdateTime();
 
     if(!this->parentSensor->IsActive()){
@@ -59,34 +62,38 @@ namespace gazebo
     else{
       if((*this->image_connect_count_) > 0){
 	common::Time cur_time = this->world_->SimTime();
-	if (cur_time - this->last_update_time_ >= this->update_period_){
-	  this->PutCameraData(image);
+	if(cur_time - this->last_update_time_ >= this->update_period_){
+	  this->PutCameraData(_image);
 	  this->PublishCameraInfo();
 	  this->last_update_time_ = cur_time;
-
-	  sensor_msgs::Illuminance msg;
-	  msg.header.stamp = ros::Time::now();
-	  msg.header.frame_id = "";
-	  msg.header.seq = seq;
-
-	  int startingPix = width * ((int)(height/2) - (int)(fov/2)) - (int)(fov/2);
-
-	  double illum = 0;
-	  for(int i = 0; i < fov; ++i){
-	    int index = startingPix + i * width;
-	    for (int j = 0; j < fov; ++j)
-	      illum += image[index + j];
-	  }
-
-	  msg.illuminance = illum / (fov * fov);
-	  msg.variance = 0.0;
-
-	  sensorPublisher.publish(msg);
-
-	  seq++;
 	}
       }
     }
+  }
+  
+  void GazeboRosLight::imagePub(const sensor_msgs::ImageConstPtr &img){
+    static int seq = 0;
+
+    sensor_msgs::Illuminance msg;
+    msg.header.stamp = ros::Time::now();
+    msg.header.frame_id = "";
+    msg.header.seq = seq;
+
+    int startingPix = img->width * ((int)(img->height/2) - (int)(fov/2)) - (int)(fov/2);
+
+    float illum = 0;
+    for(int i = 0; i < fov; ++i){
+      int index = startingPix + i * img->width;
+      for (int j = 0; j < fov; ++j)
+	illum += img->data[index + j];
+    }
+
+    msg.illuminance = illum / (fov * fov);
+    msg.variance = 0.0;
+
+    sensorPublisher.publish(msg);
+
+    seq++;
   }
   
   // Register this plugin with the simulator

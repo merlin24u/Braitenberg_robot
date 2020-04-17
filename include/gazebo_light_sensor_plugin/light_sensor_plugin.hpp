@@ -3,33 +3,42 @@
     
 #include <gazebo/plugins/CameraPlugin.hh> // library for processing camera data for gazebo / ros conversions
 #include <gazebo_plugins/gazebo_ros_camera_utils.h>
+#include <sensor_msgs/image_encodings.h>
+#include <opencv2/core/mat.hpp>
 #include <string>
     
-namespace gazebo
-{
-  class GazeboRosLight : public CameraPlugin, GazeboRosCameraUtils
-  {
+namespace gazebo{
+  
+  class GazeboRosLight : public CameraPlugin, GazeboRosCameraUtils{
+
+  private:
     ros::NodeHandle n;
     ros::Publisher sensorPublisher;
+    image_transport::ImageTransport it;
+    image_transport::Subscriber image_sub;
     
     double fov;
     double range;
 
+  public:
     /// \brief Constructor
     /// \param parent The parent entity, must be a Model or a Sensor
-  public: GazeboRosLight();
+    GazeboRosLight();
     
     /// \brief Destructor
-  public: ~GazeboRosLight();
+    ~GazeboRosLight();
     
     /// \brief Load the plugin
     /// \param take in SDF root element
-  public: void Load(sensors::SensorPtr parent, sdf::ElementPtr sdf);
-    
+    void Load(sensors::SensorPtr parent, sdf::ElementPtr sdf);
+
+    void imagePub(const sensor_msgs::ImageConstPtr &img);
+
+  protected:
     /// \brief Update the controller
-  protected: virtual void OnNewFrame(const unsigned char *image,
-				     unsigned int width, unsigned int height,
-				     unsigned int depth, const std::string &format);
+    virtual void OnNewFrame(const unsigned char *_image,
+			    unsigned int _width, unsigned int _height,
+			    unsigned int _depth, const std::string &_format);
   };
 }
 #endif
