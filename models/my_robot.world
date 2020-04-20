@@ -1,16 +1,74 @@
 <?xml version="1.0" ?>
 <sdf version="1.5">
   <world name="my_robot_world">
-    <!-- A global light source -->
-    <include>
-      <uri>model://sun</uri>
-    </include>
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.1 0.1 0.1 1</background>
+      <shadows>false</shadows>
+    </scene>
+    
+    <light type="spot" name="some_light">
+      <pose>-2.7 -2.3 1.0 1.5 0 0.7</pose>
+      <diffuse>0.8 0.8 0.8 0</diffuse>
+      <specular>1 1 1 0</specular>
+      <attenuation>
+        <range>20</range>
+        <linear>0.01</linear>
+        <constant>0.5</constant>
+        <quadratic>0</quadratic>
+      </attenuation>
+      <spot>
+	<inner_angle>0.6</inner_angle>
+	<outer_angle>1</outer_angle>
+	<falloff>1</falloff>
+      </spot>
+    </light>
+    
     <!-- A ground plane -->
     <include>
       <uri>model://ground_plane</uri>
     </include>
 
-    <!-- model -->
+    <!-- simple box model -->
+    <model name="box">
+      <static>false</static>
+      <link name='main_link'>
+	<pose>-3 0 0 0 0 0</pose>
+	<inertial>
+	  <mass>1</mass>
+	  <inertia>
+            <ixx>0.0</ixx>       <!-- for a box: ixx = 0.083 * mass * (y*y + z*z) -->
+            <ixy>0.0</ixy>           <!-- for a box: ixy = 0 -->
+            <ixz>0.0</ixz>           <!-- for a box: ixz = 0 -->
+            <iyy>0.747</iyy>      <!-- for a box: iyy = 0.083 * mass * (x*x + z*z) -->
+            <iyz>0.0</iyz>           <!-- for a box: iyz = 0 -->
+            <izz>0.747</izz>       <!-- for a box: izz = 0.083 * mass * (x*x + y*y) -->
+	  </inertia>
+	</inertial>
+        <collision name='collision'>
+          <geometry>
+            <box>
+              <size>1 1 1</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>1 1 1</size>
+            </box>
+          </geometry>
+	  <material> 
+            <ambient>0.1 0.1 0.1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+            <specular>0 0 0 0</specular>
+            <emissive>0 0 0 1</emissive>
+          </material> 
+        </visual>
+      </link>
+    </model>
+
+    <!-- robot model -->
     <model name="my_robot">
       <static>false</static>
       <link name='chassis'>
@@ -68,14 +126,14 @@
         </visual>
       </link>
       
-      <link name="left_wheel">
-        <pose>0.1 0.13 0.1 0 1.5707 1.5707</pose>
+      <link name="right_wheel">
+        <pose>0.1 0.125 0.1 0 1.5707 1.5707</pose>
 	<inertial>
-	  <mass>0.01</mass>
+	  <mass>0.1</mass>
 	  <inertia>
-            <ixx>0.000026975</ixx>
-            <iyy>0.000026975</iyy>
-            <izz>0.00005</izz>
+            <ixx>0.00026975</ixx>
+            <iyy>0.00026975</iyy>
+            <izz>0.0005</izz>
             <ixy>0</ixy>
             <ixz>0</ixz>
             <iyz>0</iyz>
@@ -107,14 +165,14 @@
         </visual>
       </link>
 
-      <link name="right_wheel">
-        <pose>0.1 -0.13 0.1 0 1.5707 1.5707</pose>
+      <link name="left_wheel">
+        <pose>0.1 -0.125 0.1 0 1.5707 1.5707</pose>
 	<inertial>
-	  <mass>0.01</mass>
+	  <mass>0.1</mass>
 	  <inertia>
-            <ixx>0.000026975</ixx>
-            <iyy>0.000026975</iyy>
-            <izz>0.00005</izz>
+            <ixx>0.00026975</ixx>
+            <iyy>0.00026975</iyy>
+            <izz>0.0005</izz>
             <ixy>0</ixy>
             <ixz>0</ixz>
             <iyz>0</iyz>
@@ -187,58 +245,58 @@
           </camera>
 	  <plugin name="gazebo_light_sensor_plugin" filename="libgazebo_light_sensor_plugin.so">
 	    <baseline>0.2</baseline>
-            <alwaysOn>true</alwaysOn>
+            <alwaysOn>1</alwaysOn>
             <!-- Keep this zero, update_rate in the parent <sensor> tag
 		 will control the frame rate. -->
-            <updateRate>0.0</updateRate>
-            <cameraName>camera</cameraName>
-            <imageTopicName>rgb/image_raw</imageTopicName>
-            <depthImageTopicName>depth/image_raw</depthImageTopicName>
-            <pointCloudTopicName>depth/points</pointCloudTopicName>
-            <cameraInfoTopicName>rgb/camera_info</cameraInfoTopicName>
-            <depthImageCameraInfoTopicName>depth/camera_info</depthImageCameraInfoTopicName>
-            <frameName>camera_link</frameName>
-	    <pointCloudCutoff>0.1</pointCloudCutoff>
-            <pointCloudCutoffMax>10.0</pointCloudCutoffMax>
-            <distortionK1>0.0</distortionK1>
-            <distortionK2>0.0</distortionK2>
-            <distortionK3>0.0</distortionK3>
-            <distortionT1>0.0</distortionT1>
-            <distortionT2>0.0</distortionT2>
-	    <CxPrime>0</CxPrime>
-            <Cx>0</Cx>
-            <Cy>0</Cy>
-            <focalLength>0</focalLength>
-            <hackBaseline>0</hackBaseline>
-	  </plugin>
-          <always_on>1</always_on>
-          <update_rate>30</update_rate>
-          <visualize>1</visualize>
-        </sensor>
-      </link>
+		 <updateRate>0.0</updateRate>
+		 <cameraName>camera</cameraName>
+		 <imageTopicName>rgb/image_raw</imageTopicName>
+		 <depthImageTopicName>depth/image_raw</depthImageTopicName>
+		 <pointCloudTopicName>depth/points</pointCloudTopicName>
+		 <cameraInfoTopicName>rgb/camera_info</cameraInfoTopicName>
+		 <depthImageCameraInfoTopicName>depth/camera_info</depthImageCameraInfoTopicName>
+		 <frameName>camera_link</frameName>
+		 <pointCloudCutoff>0.1</pointCloudCutoff>
+		 <pointCloudCutoffMax>10.0</pointCloudCutoffMax>
+		 <distortionK1>0.0</distortionK1>
+		 <distortionK2>0.0</distortionK2>
+		 <distortionK3>0.0</distortionK3>
+		 <distortionT1>0.0</distortionT1>
+		 <distortionT2>0.0</distortionT2>
+		 <CxPrime>0</CxPrime>
+		 <Cx>0</Cx>
+		 <Cy>0</Cy>
+		 <focalLength>0</focalLength>
+		 <hackBaseline>0</hackBaseline>
+	       </plugin>
+               <always_on>1</always_on>
+               <update_rate>30</update_rate>
+               <visualize>1</visualize>
+             </sensor>
+	   </link>
 
-      <joint name="camara_joint" type="fixed">
-	<child>camera_link</child>
-	<parent>chassis</parent>
-      </joint>
-      
-      <joint type="revolute" name="left_wheel_hinge">
-        <pose>0 0 -0.03 0 0 0</pose>
-        <child>left_wheel</child>
-        <parent>chassis</parent>
-        <axis>
-          <xyz>0 0 1</xyz>
-        </axis>
-      </joint>
+	   <joint name="camara_joint" type="fixed">
+	     <child>camera_link</child>
+	     <parent>chassis</parent>
+	   </joint>
+	   
+	   <joint type="revolute" name="right_wheel_hinge">
+             <pose>0 0 -0.03 0 0 0</pose>
+             <child>right_wheel</child>
+             <parent>chassis</parent>
+             <axis>
+               <xyz>0 0 1</xyz>
+             </axis>
+	   </joint>
 
-      <joint type="revolute" name="right_wheel_hinge">
-        <pose>0 0 0.03 0 0 0</pose>
-        <child>right_wheel</child>
-        <parent>chassis</parent>
-        <axis>
-          <xyz>0 0 1</xyz>
-        </axis>
-      </joint>
-    </model>
-  </world>
-</sdf>
+	   <joint type="revolute" name="left_wheel_hinge">
+             <pose>0 0 0.03 0 0 0</pose>
+             <child>left_wheel</child>
+             <parent>chassis</parent>
+             <axis>
+               <xyz>0 0 -1</xyz>
+             </axis>
+	   </joint>
+	 </model>
+       </world>
+     </sdf>
