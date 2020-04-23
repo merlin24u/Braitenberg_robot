@@ -74,7 +74,6 @@ namespace gazebo
   }
   
   void GazeboRosLight::imagePub(const sensor_msgs::ImageConstPtr &_img){
-
     gazebo_light_sensor_plugin::Sensor msg;
 
     cv_bridge::CvImagePtr cv_ptr;

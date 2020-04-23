@@ -139,6 +139,9 @@ add_library(robot_plugin SHARED src/robot_plugin.cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} ${OpenCV_LIBS} CameraPlugin)
 target_link_libraries(robot_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
+add_dependencies(robot_plugin gazebo_light_sensor_plugin_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME} gazebo_light_sensor_plugin_generate_messages_cpp)
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure

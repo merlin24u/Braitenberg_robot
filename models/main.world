@@ -71,7 +71,7 @@
     <!-- robot model -->
     <model name="my_robot">
       <include>
-        <uri>model://My_robot</uri>
+        <uri>model://Robot</uri>
       </include>
       
       <plugin name='control' filename='librobot_plugin.so'>
