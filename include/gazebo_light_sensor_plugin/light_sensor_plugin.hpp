@@ -4,7 +4,6 @@
 #include <gazebo/plugins/CameraPlugin.hh> // library for processing camera data for gazebo / ros conversions
 #include <gazebo_plugins/gazebo_ros_camera_utils.h>
 #include <sensor_msgs/image_encodings.h>
-#include <opencv2/core/mat.hpp>
 #include <string>
     
 namespace gazebo{

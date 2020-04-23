@@ -1,0 +1,117 @@
+#ifndef _ROBOT_PLUGIN_HH_
+#define _ROBOT_PLUGIN_HH_
+
+#include <ros/ros.h>
+#include <ros/callback_queue.h>
+#include <ros/subscribe_options.h>
+#include <gazebo/gazebo.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo_light_sensor_plugin/Sensor.h>
+#include <thread>
+#include <vector>
+#include <math.h>
+
+using namespace std;
+
+int MAX_SPEED = 10; // speed in radian/s of wheels by default
+
+namespace gazebo{
+
+  /// \brief A plugin to control a MyRobot sensor.
+  class RobotPlugin : public ModelPlugin{
+
+  private:
+    /// \brief Pointer to the model.
+    physics::ModelPtr model;
+
+    /// \brief A node use for ROS transport
+    unique_ptr<ros::NodeHandle> rosNode;
+
+    /// \brief A ROS subscriber
+    ros::Subscriber rosSub;
+
+    /// \brief A ROS callbackqueue that helps process messages
+    ros::CallbackQueue rosQueue;
+
+    /// \brief A thread the keeps running the rosQueue
+    thread rosQueueThread;
+  
+  public:
+    /// \brief Constructor
+    RobotPlugin() {}
+
+    /// \brief The load function is called by Gazebo when the plugin is
+    /// inserted into simulation
+    /// \param[in] _model A pointer to the model that this plugin is
+    /// attached to.
+    /// \param[in] _sdf A pointer to the plugin's SDF element.
+    virtual void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf){
+      // Safety check
+      if(_model->GetJointCount() == 0){
+	cerr << "Invalid joint count, MyRobot plugin not loaded\n";
+	return;
+      }
+
+      // Store the model pointer for convenience.
+      this->model = _model;
+
+      // Check that the velocity element exists, then read the value
+      if (_sdf->HasElement("velocity"))
+	MAX_SPEED = _sdf->Get<double>("velocity");
+
+      // Initialize ros, if it has not already bee initialized.
+      if(!ros::isInitialized()){
+	int argc = 0;
+	char **argv = NULL;
+	ros::init(argc, argv, "gazebo",
+		  ros::init_options::NoSigintHandler);
+      }
+
+      // Create our ROS node. This acts in a similar manner to
+      // the Gazebo node
+      this->rosNode.reset(new ros::NodeHandle("gazebo_client"));
+
+      // Create a named topic, and subscribe to it.
+      ros::SubscribeOptions so =
+	ros::SubscribeOptions::create<gazebo_light_sensor_plugin::Sensor>(
+									  "/lightSensor",
+									  100,
+									  boost::bind(&RobotPlugin::onRosMsg, this, _1),
+									  ros::VoidPtr(), &this->rosQueue);
+      this->rosSub = this->rosNode->subscribe(so);
+
+      // Spin up the queue helper thread.
+      this->rosQueueThread =
+	thread(bind(&RobotPlugin::QueueThread, this));
+    }
+
+    /// \brief Handle an incoming message from ROS
+    /// \param[in] data Sensors data that is used to set the velocity
+    /// of the MyRobot.
+    void onRosMsg(const gazebo_light_sensor_plugin::SensorConstPtr &data){
+      
+    }
+
+    /// \brief Set the velocity of the MyRobot
+    /// \param[in] l New left target velocity
+    /// \param[in] r New right target velocity
+    void setVelocity(const double &l, const double &r){
+      this->model->GetJoint("my_robot::left_wheel_hinge")->SetVelocity(0, l);
+      this->model->GetJoint("my_robot::right_wheel_hinge")->SetVelocity(0, r);
+    }
+
+  private:
+    /// \brief ROS helper function that processes messages
+    void QueueThread(){
+      static const double timeout = 0.01;
+      while (this->rosNode->ok())
+	{
+	  this->rosQueue.callAvailable(ros::WallDuration(timeout));
+	}
+    }
+  };
+
+  // Tell Gazebo about this plugin, so that Gazebo can call Load on this plugin.
+  GZ_REGISTER_MODEL_PLUGIN(RobotPlugin)
+}
+#endif

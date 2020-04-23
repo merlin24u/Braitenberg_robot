@@ -11,12 +11,17 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   gazebo_plugins
   gazebo_ros
+  cv_bridge
+  image_transport
   sensor_msgs
   message_generation
 )
 
 # Depend on system install of Gazebo
 find_package(gazebo REQUIRED)
+
+# Depend on system install openCV
+find_package(OpenCV REQUIRED)
 
 # Depend on system install of Eigen3
 # find_package (Eigen3 3.3 REQUIRED NO_MODULE)
@@ -54,11 +59,10 @@ find_package(gazebo REQUIRED)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  Sensor.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -75,10 +79,10 @@ find_package(gazebo REQUIRED)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+generate_messages(
+   DEPENDENCIES
+   std_msgs  # Or other packages containing msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -127,11 +131,13 @@ include_directories(
 include ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${SDFormat_INCLUDE_DIRS}
 )
 
-## Declare a C++ library
+## Build plugins
 add_library(${PROJECT_NAME} src/light_sensor_plugin.cpp)
+add_library(robot_plugin SHARED src/robot_plugin.cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} CameraPlugin)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} ${OpenCV_LIBS} CameraPlugin)
+target_link_libraries(robot_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

@@ -69,8 +69,14 @@
     </model>
 
     <!-- robot model -->
-    <include>
-      <uri>model://My_robot</uri>
-    </include>
+    <model name="my_robot">
+      <include>
+        <uri>model://My_robot</uri>
+      </include>
+      
+      <plugin name='control' filename='librobot_plugin.so'>
+	<velocity>10</velocity>
+      </plugin>
+    </model>
   </world>
 </sdf>

@@ -1,12 +1,14 @@
 #include <ros/ros.h>
-#include <sensor_msgs/Illuminance.h>
+#include <gazebo_light_sensor_plugin/Sensor.h>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/sensors/Sensor.hh>
 #include <gazebo/sensors/CameraSensor.hh>
 #include <gazebo/sensors/SensorTypes.hh>
 #include <gazebo_plugins/gazebo_ros_camera.h>
+#include <image_transport/image_transport.h>
+#include <cv_bridge/cv_bridge.h>
+#include <opencv2/core/mat.hpp>
 #include "gazebo_light_sensor_plugin/light_sensor_plugin.hpp"
-#include <string>
 
 namespace gazebo
 {
@@ -16,7 +18,7 @@ namespace gazebo
     image_sub = it.subscribe("/camera/rgb/image_raw", 100,
 			     &gazebo::GazeboRosLight::imagePub, this);
 
-    sensorPublisher = n.advertise<sensor_msgs::Illuminance>("lightSensor", 1);
+    sensorPublisher = n.advertise<gazebo_light_sensor_plugin::Sensor>("/lightSensor", 1);
   }
 
   // Destructor
@@ -71,29 +73,31 @@ namespace gazebo
     }
   }
   
-  void GazeboRosLight::imagePub(const sensor_msgs::ImageConstPtr &img){
-    static int seq = 0;
+  void GazeboRosLight::imagePub(const sensor_msgs::ImageConstPtr &_img){
 
-    sensor_msgs::Illuminance msg;
-    msg.header.stamp = ros::Time::now();
-    msg.header.frame_id = "";
-    msg.header.seq = seq;
+    gazebo_light_sensor_plugin::Sensor msg;
 
-    int startingPix = img->width * ((int)(img->height/2) - (int)(fov/2)) - (int)(fov/2);
-
-    float illum = 0;
-    for(int i = 0; i < fov; ++i){
-      int index = startingPix + i * img->width;
-      for (int j = 0; j < fov; ++j)
-	illum += img->data[index + j];
+    cv_bridge::CvImagePtr cv_ptr;
+    try{
+      cv_ptr = cv_bridge::toCvCopy(_img, _img->encoding);
+    }catch(const cv_bridge::Exception& e){
+      ROS_ERROR("cv_bridge exception: %s", e.what());
+      return;
     }
 
-    msg.illuminance = illum / (fov * fov);
-    msg.variance = 0.0;
+    cv::Mat img = cv_ptr->image;
+    int r = img.rows;
+    int c = img.cols;
+    
+    auto pixel = img.at<cv::Vec3b>(r/2, 0);
+    float illum = 0.299 * (float)pixel[2] + 0.587 * (float)pixel[1] + 0.114 * (float)pixel[0];
+    msg.data.push_back(illum);
 
+    pixel = img.at<cv::Vec3b>(r/2, c - 1);
+    illum = 0.299 * (float)pixel[2] + 0.587 * (float)pixel[1] + 0.114 * (float)pixel[0];
+    msg.data.push_back(illum);
+    
     sensorPublisher.publish(msg);
-
-    seq++;
   }
   
   // Register this plugin with the simulator
