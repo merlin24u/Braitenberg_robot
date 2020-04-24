@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(gazebo_light_sensor_plugin)
+project(gazebo_braitenberg_robot)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -132,15 +132,15 @@ include ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${SDFormat_INCLUDE_DIRS}
 )
 
 ## Build plugins
-add_library(${PROJECT_NAME} src/light_sensor_plugin.cpp)
+add_library(light_sensor_plugin src/light_sensor_plugin.cpp)
 add_library(robot_plugin SHARED src/robot_plugin.cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} ${OpenCV_LIBS} CameraPlugin)
+target_link_libraries(light_sensor_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} ${OpenCV_LIBS} CameraPlugin)
 target_link_libraries(robot_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
-add_dependencies(robot_plugin gazebo_light_sensor_plugin_generate_messages_cpp)
-add_dependencies(${PROJECT_NAME} gazebo_light_sensor_plugin_generate_messages_cpp)
+add_dependencies(robot_plugin gazebo_braitenberg_robot_generate_messages_cpp)
+add_dependencies(light_sensor_plugin gazebo_braitenberg_robot_generate_messages_cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include <gazebo_light_sensor_plugin/Sensor.h>
+#include <gazebo_braitenberg_robot/Sensor.h>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/sensors/Sensor.hh>
 #include <gazebo/sensors/CameraSensor.hh>
@@ -8,7 +8,7 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/core/mat.hpp>
-#include "gazebo_light_sensor_plugin/light_sensor_plugin.hpp"
+#include "gazebo_braitenberg_robot/light_sensor_plugin.hpp"
 
 namespace gazebo
 {
@@ -18,7 +18,7 @@ namespace gazebo
     image_sub = it.subscribe("/camera/rgb/image_raw", 100,
 			     &gazebo::GazeboRosLight::imagePub, this);
 
-    sensorPublisher = n.advertise<gazebo_light_sensor_plugin::Sensor>("/lightSensor", 1);
+    sensorPublisher = n.advertise<gazebo_braitenberg_robot::Sensor>("/lightSensor", 1);
   }
 
   // Destructor
@@ -74,7 +74,7 @@ namespace gazebo
   }
   
   void GazeboRosLight::imagePub(const sensor_msgs::ImageConstPtr &_img){
-    gazebo_light_sensor_plugin::Sensor msg;
+    gazebo_braitenberg_robot::Sensor msg;
 
     cv_bridge::CvImagePtr cv_ptr;
     try{

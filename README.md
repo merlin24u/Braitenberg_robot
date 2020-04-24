@@ -6,7 +6,7 @@
 
 ## Instructions
 
-* Build (inside a catkin_ws) with `gazebo_light_sensor_plugin` as the name of the ROS package 
+* Build (inside a catkin_ws) with `gazebo_braitenberg_robot` as the name of the ROS package 
 
 ```
 catkin_make

@@ -6,7 +6,7 @@
 #include <ros/subscribe_options.h>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo_light_sensor_plugin/Sensor.h>
+#include <gazebo_braitenberg_robot/Sensor.h>
 #include <thread>
 #include <vector>
 #include <math.h>
@@ -73,11 +73,11 @@ namespace gazebo{
 
       // Create a named topic, and subscribe to it.
       ros::SubscribeOptions so =
-	ros::SubscribeOptions::create<gazebo_light_sensor_plugin::Sensor>(
-									  "/lightSensor",
-									  100,
-									  boost::bind(&RobotPlugin::onRosMsg, this, _1),
-									  ros::VoidPtr(), &this->rosQueue);
+	ros::SubscribeOptions::create<gazebo_braitenberg_robot::Sensor>(
+									"/lightSensor",
+									100,
+									boost::bind(&RobotPlugin::onRosMsg, this, _1),
+									ros::VoidPtr(), &this->rosQueue);
       this->rosSub = this->rosNode->subscribe(so);
 
       // Spin up the queue helper thread.
@@ -88,7 +88,7 @@ namespace gazebo{
     /// \brief Handle an incoming message from ROS
     /// \param[in] data Sensors data that is used to set the velocity
     /// of the MyRobot.
-    void onRosMsg(const gazebo_light_sensor_plugin::SensorConstPtr &data){
+    void onRosMsg(const gazebo_braitenberg_robot::SensorConstPtr &data){
       
     }
 
