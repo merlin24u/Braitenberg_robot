@@ -10,8 +10,10 @@
 #include <thread>
 #include <vector>
 #include <math.h>
+#include <Eigen/Dense>
 
 using namespace std;
+using namespace Eigen;
 
 int MAX_SPEED = 10; // speed in radian/s of wheels by default
 
@@ -35,6 +37,8 @@ namespace gazebo{
 
     /// \brief A thread the keeps running the rosQueue
     thread rosQueueThread;
+
+    Vector2f initial_vel;
   
   public:
     /// \brief Constructor
@@ -58,6 +62,9 @@ namespace gazebo{
       // Check that the velocity element exists, then read the value
       if (_sdf->HasElement("velocity"))
 	MAX_SPEED = _sdf->Get<double>("velocity");
+
+      // Set up initial velocity
+      Vector2f initial_vel(0., 0.);
 
       // Initialize ros, if it has not already bee initialized.
       if(!ros::isInitialized()){
@@ -88,8 +95,20 @@ namespace gazebo{
     /// \brief Handle an incoming message from ROS
     /// \param[in] data Sensors data that is used to set the velocity
     /// of the MyRobot.
-    void onRosMsg(const gazebo_braitenberg_robot::SensorConstPtr &data){
+    void onRosMsg(const gazebo_braitenberg_robot::SensorConstPtr &msg){
+      VectorXf sensors(msg->data.size());
+      for(int i = 0; i < msg->data.size(); i++)
+	sensors(i) = msg->data[i];
       
+      MatrixXf coeff(2, msg->data.size());
+      Vector2f vel = initial_vel + coeff * sensors;
+      Matrix2f cst;
+      cst << 1, 1,
+	1, -1;
+      Vector2f wheel_speed = cst * vel;
+      
+      initial_vel = vel;
+      setVelocity(wheel_speed(0), wheel_speed(1));
     }
 
     /// \brief Set the velocity of the MyRobot
