@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0)
 project(gazebo_braitenberg_robot)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
@@ -24,7 +24,7 @@ find_package(gazebo REQUIRED)
 find_package(OpenCV REQUIRED)
 
 # Depend on system install of Eigen3
-# find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -137,7 +137,7 @@ add_library(robot_plugin SHARED src/robot_plugin.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(light_sensor_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} ${OpenCV_LIBS} CameraPlugin)
-target_link_libraries(robot_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+target_link_libraries(robot_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} Eigen3::Eigen)
 
 add_dependencies(robot_plugin gazebo_braitenberg_robot_generate_messages_cpp)
 add_dependencies(light_sensor_plugin gazebo_braitenberg_robot_generate_messages_cpp)
