@@ -15,8 +15,6 @@
 using namespace std;
 using namespace Eigen;
 
-int MAX_SPEED = 10; // speed in radian/s of wheels by default
-
 namespace gazebo{
 
   /// \brief A plugin to control a MyRobot sensor.
@@ -38,7 +36,9 @@ namespace gazebo{
     /// \brief A thread the keeps running the rosQueue
     thread rosQueueThread;
 
-    Vector2f initial_vel;
+    Matrix2f coeff, cst; // matrix used for each iteration
+    
+    int MAX_SPEED; // speed in radian/s of wheels
   
   public:
     /// \brief Constructor
@@ -63,8 +63,11 @@ namespace gazebo{
       if (_sdf->HasElement("velocity"))
 	MAX_SPEED = _sdf->Get<double>("velocity");
 
-      // Set up initial velocity
-      Vector2f initial_vel(0., 0.);
+      // Set up matrix
+      coeff << 8, 8,
+	4, -4;
+      cst << 1, 1,
+	1, -1;
 
       // Initialize ros, if it has not already bee initialized.
       if(!ros::isInitialized()){
@@ -98,17 +101,13 @@ namespace gazebo{
     void onRosMsg(const gazebo_braitenberg_robot::SensorConstPtr &msg){
       VectorXf sensors(msg->data.size());
       for(int i = 0; i < msg->data.size(); i++)
-	sensors(i) = msg->data[i];
+	sensors(i) = msg->data[i] / 60;
+
+      Vector2f vel = coeff * sensors;
+      Vector2f wheel_speed = this->cst * vel;
       
-      MatrixXf coeff(2, msg->data.size());
-      Vector2f vel = initial_vel + coeff * sensors;
-      Matrix2f cst;
-      cst << 1, 1,
-	1, -1;
-      Vector2f wheel_speed = cst * vel;
-      
-      initial_vel = vel;
-      setVelocity(wheel_speed(0), wheel_speed(1));
+      float k = max(wheel_speed(0), wheel_speed(1)); // scale wheel speed on MAX_SPEED
+      setVelocity(wheel_speed(0) * MAX_SPEED / k, wheel_speed(1) * MAX_SPEED / k);
     }
 
     /// \brief Set the velocity of the MyRobot
