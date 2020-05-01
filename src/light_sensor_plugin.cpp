@@ -92,6 +92,14 @@ namespace gazebo
     float illum = 0.299 * (float)pixel[2] + 0.587 * (float)pixel[1] + 0.114 * (float)pixel[0];
     msg.data.push_back(illum);
 
+    pixel = img.at<cv::Vec3b>(r/2, c/4);
+    illum = 0.299 * (float)pixel[2] + 0.587 * (float)pixel[1] + 0.114 * (float)pixel[0];
+    msg.data.push_back(illum);
+
+    pixel = img.at<cv::Vec3b>(r/2, c * 3/4);
+    illum = 0.299 * (float)pixel[2] + 0.587 * (float)pixel[1] + 0.114 * (float)pixel[0];
+    msg.data.push_back(illum);
+
     pixel = img.at<cv::Vec3b>(r/2, c - 1);
     illum = 0.299 * (float)pixel[2] + 0.587 * (float)pixel[1] + 0.114 * (float)pixel[0];
     msg.data.push_back(illum);

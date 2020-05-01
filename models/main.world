@@ -33,9 +33,9 @@
 
     <!-- simple box model -->
     <model name="box">
+      <pose>-4 0 0 0 0 0</pose>
       <static>false</static>
       <link name='main_link'>
-	<pose>-4 0 0 0 0 0</pose>
 	<inertial>
 	  <mass>1</mass>
 	  <inertia>

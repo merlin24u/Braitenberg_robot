@@ -174,7 +174,7 @@
 	    <far>100</far>
           </clip>
         </camera>
-	<plugin name="gazebo_light_sensor_plugin" filename="libgazebo_light_sensor_plugin.so">
+	<plugin name="light_sensor_plugin" filename="liblight_sensor_plugin.so">
 	  <baseline>0.2</baseline>
           <alwaysOn>1</alwaysOn>
           <!-- Keep this zero, update_rate in the parent sensor tag
@@ -182,13 +182,8 @@
 	  <updateRate>0.0</updateRate>
 	  <cameraName>camera</cameraName>
 	  <imageTopicName>rgb/image_raw</imageTopicName>
-	  <depthImageTopicName>depth/image_raw</depthImageTopicName>
-	  <pointCloudTopicName>depth/points</pointCloudTopicName>
 	  <cameraInfoTopicName>rgb/camera_info</cameraInfoTopicName>
-	  <depthImageCameraInfoTopicName>depth/camera_info</depthImageCameraInfoTopicName>
 	  <frameName>camera_link</frameName>
-	  <pointCloudCutoff>0.1</pointCloudCutoff>
-	  <pointCloudCutoffMax>10.0</pointCloudCutoffMax>
 	  <distortionK1>0.0</distortionK1>
 	  <distortionK2>0.0</distortionK2>
 	  <distortionK3>0.0</distortionK3>
@@ -202,7 +197,7 @@
 	</plugin>
         <always_on>1</always_on>
         <update_rate>30</update_rate>
-        <visualize>1</visualize>
+        <visualize>0</visualize>
       </sensor>
     </link>
 

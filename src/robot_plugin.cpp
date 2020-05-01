@@ -36,7 +36,8 @@ namespace gazebo{
     /// \brief A thread the keeps running the rosQueue
     thread rosQueueThread;
 
-    Matrix2f coeff, cst; // matrix used for each iteration
+    /// \brief Matrix used for each iteration
+    Matrix2f cst;
     
     int MAX_SPEED; // speed in radian/s of wheels
   
@@ -64,8 +65,6 @@ namespace gazebo{
 	MAX_SPEED = _sdf->Get<double>("velocity");
 
       // Set up matrix
-      coeff << 8, 8,
-	4, -4;
       cst << 1, 1,
 	1, -1;
 
@@ -103,8 +102,11 @@ namespace gazebo{
       for(int i = 0; i < msg->data.size(); i++)
 	sensors(i) = msg->data[i] / 60;
 
+      MatrixXf coeff(2, 4);
+      coeff << 4, 6, 6, 4, 
+	-4, -4, 4, 4;
       Vector2f vel = coeff * sensors;
-      Vector2f wheel_speed = this->cst * vel;
+      Vector2f wheel_speed = cst * vel;
       
       float k = max(wheel_speed(0), wheel_speed(1)); // scale wheel speed on MAX_SPEED
       setVelocity(wheel_speed(0) * MAX_SPEED / k, wheel_speed(1) * MAX_SPEED / k);
