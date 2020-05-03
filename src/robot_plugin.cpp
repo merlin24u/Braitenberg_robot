@@ -15,6 +15,8 @@
 using namespace std;
 using namespace Eigen;
 
+typedef Matrix<float, 2, 4> Matrix2_4f; // custom Matrix otherwise initialization doesn't seem to be working
+
 namespace gazebo{
 
   /// \brief A plugin to control a MyRobot sensor.
@@ -38,6 +40,7 @@ namespace gazebo{
 
     /// \brief Matrix used for each iteration
     Matrix2f cst;
+    Matrix2_4f coeff;
     
     int MAX_SPEED; // speed in radian/s of wheels
   
@@ -67,6 +70,8 @@ namespace gazebo{
       // Set up matrix
       cst << 1, 1,
 	1, -1;
+      coeff << 4, 6, 6, 4, 
+	-4, -4, 4, 4;
 
       // Initialize ros, if it has not already bee initialized.
       if(!ros::isInitialized()){
@@ -102,9 +107,6 @@ namespace gazebo{
       for(int i = 0; i < msg->data.size(); i++)
 	sensors(i) = msg->data[i] / 60;
 
-      MatrixXf coeff(2, 4);
-      coeff << 4, 6, 6, 4, 
-	-4, -4, 4, 4;
       Vector2f vel = coeff * sensors;
       Vector2f wheel_speed = cst * vel;
       
