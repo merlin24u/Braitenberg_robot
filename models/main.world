@@ -8,23 +8,23 @@
     </scene>
 
     <!--
-    <light type="spot" name="some_light">
-      <pose>-2.7 -2.3 1.0 1.5 0 0.7</pose>
-      <diffuse>0.8 0.8 0.8 0</diffuse>
-      <specular>1 1 1 0</specular>
-      <attenuation>
+	<light type="spot" name="some_light">
+	<pose>-2.7 -2.3 1.0 1.5 0 0.7</pose>
+	<diffuse>0.8 0.8 0.8 0</diffuse>
+	<specular>1 1 1 0</specular>
+	<attenuation>
         <range>20</range>
         <linear>0.01</linear>
         <constant>0.5</constant>
         <quadratic>0</quadratic>
-      </attenuation>
-      <spot>
+	</attenuation>
+	<spot>
 	<inner_angle>0.6</inner_angle>
 	<outer_angle>1</outer_angle>
 	<falloff>1</falloff>
-      </spot>
-      </light>
-      -->
+	</spot>
+	</light>
+    -->
     
     <!-- A ground plane -->
     <include>
@@ -78,6 +78,7 @@
       
       <plugin name='control' filename='librobot_plugin.so'>
 	<velocity>10</velocity>
+	<behavior>0</behavior>
       </plugin>
     </model>
   </world>

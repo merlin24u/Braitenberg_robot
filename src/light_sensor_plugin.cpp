@@ -8,12 +8,12 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/core/mat.hpp>
-#include "gazebo_braitenberg_robot/light_sensor_plugin.hpp"
+#include <gazebo_braitenberg_robot/light_sensor_plugin.hpp>
 
 namespace gazebo
 {
   // Constructor
-  GazeboRosLight::GazeboRosLight(): n("light_sensor_plugin"), it(n), fov(6), range(10){
+  GazeboRosLight::GazeboRosLight(): n("light_sensor_plugin"), it(n){
     // Subscrive to input video feed
     image_sub = it.subscribe("/camera/rgb/image_raw", 100,
 			     &gazebo::GazeboRosLight::imagePub, this);

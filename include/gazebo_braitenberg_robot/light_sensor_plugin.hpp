@@ -15,9 +15,6 @@ namespace gazebo{
     ros::Publisher sensorPublisher;
     image_transport::ImageTransport it;
     image_transport::Subscriber image_sub;
-    
-    double fov;
-    double range;
 
   public:
     /// \brief Constructor

@@ -8,7 +8,6 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo_braitenberg_robot/Sensor.h>
 #include <thread>
-#include <vector>
 #include <math.h>
 #include <Eigen/Dense>
 
@@ -43,8 +42,14 @@ namespace gazebo{
     Matrix2_4f coeff;
     
     int MAX_SPEED; // speed in radian/s of wheels
+
+    int BEHAVIOR; // behavior of robot (following/avoiding light)
   
   public:
+    /// \brief tied to behavior
+    const static int FOLLOW = 0;
+    const static int AVOID = 1;
+    
     /// \brief Constructor
     RobotPlugin() {}
 
@@ -63,16 +68,31 @@ namespace gazebo{
       // Store the model pointer for convenience.
       this->model = _model;
 
-      // Check that the velocity element exists, then read the value
+      // Check that the sdf elements exist, then read the values
       if (_sdf->HasElement("velocity"))
-	MAX_SPEED = _sdf->Get<double>("velocity");
+	MAX_SPEED = _sdf->Get<int>("velocity");
+      if (_sdf->HasElement("behavior"))
+	BEHAVIOR = _sdf->Get<int>("behavior");
 
       // Set up matrix
       cst << 1, 1,
 	1, -1;
-      coeff << 4, 6, 6, 4, 
-	-4, -4, 4, 4;
-
+      switch(BEHAVIOR){
+      case FOLLOW :
+	coeff << 4, 6, 6, 4, 
+	  -4, -4, 4, 4;
+	break;
+      case AVOID :
+	coeff << 4, 6, 6, 4, 
+	  4, 4, -4, -4;
+	break;
+      default:
+	// FOLLOW
+	coeff << 4, 6, 6, 4, 
+	  -4, -4, 4, 4;
+	break;
+      }
+      
       // Initialize ros, if it has not already bee initialized.
       if(!ros::isInitialized()){
 	int argc = 0;
@@ -111,6 +131,8 @@ namespace gazebo{
       Vector2f wheel_speed = cst * vel;
       
       float k = max(wheel_speed(0), wheel_speed(1)); // scale wheel speed on MAX_SPEED
+      if(k == 0)
+	k = 1;
       setVelocity(wheel_speed(0) * MAX_SPEED / k, wheel_speed(1) * MAX_SPEED / k);
     }
 
