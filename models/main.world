@@ -6,69 +6,16 @@
       <background>0 0 0 1</background>
       <shadows>false</shadows>
     </scene>
-
-    <!--
-	<light type="spot" name="some_light">
-	<pose>-2.7 -2.3 1.0 1.5 0 0.7</pose>
-	<diffuse>0.8 0.8 0.8 0</diffuse>
-	<specular>1 1 1 0</specular>
-	<attenuation>
-        <range>20</range>
-        <linear>0.01</linear>
-        <constant>0.5</constant>
-        <quadratic>0</quadratic>
-	</attenuation>
-	<spot>
-	<inner_angle>0.6</inner_angle>
-	<outer_angle>1</outer_angle>
-	<falloff>1</falloff>
-	</spot>
-	</light>
-    -->
     
     <!-- A ground plane -->
     <include>
       <uri>model://ground_plane</uri>
     </include>
 
-    <!-- simple box model -->
-    <model name="box">
-      <pose>-4 0 0 0 0 0</pose>
-      <static>false</static>
-      <link name='main_link'>
-	<inertial>
-	  <mass>1</mass>
-	  <inertia>
-            <ixx>0.0</ixx>       <!-- for a box: ixx = 0.083 * mass * (y*y + z*z) -->
-            <ixy>0.0</ixy>           <!-- for a box: ixy = 0 -->
-            <ixz>0.0</ixz>           <!-- for a box: ixz = 0 -->
-            <iyy>0.747</iyy>      <!-- for a box: iyy = 0.083 * mass * (x*x + z*z) -->
-            <iyz>0.0</iyz>           <!-- for a box: iyz = 0 -->
-            <izz>0.747</izz>       <!-- for a box: izz = 0.083 * mass * (x*x + y*y) -->
-	  </inertia>
-	</inertial>
-        <collision name='collision'>
-          <geometry>
-            <box>
-              <size>1 1 1</size>
-            </box>
-          </geometry>
-        </collision>
-        <visual name='visual'>
-          <geometry>
-            <box>
-              <size>1 1 1</size>
-            </box>
-          </geometry>
-	  <material> 
-            <ambient>0 0 0 1</ambient>
-            <diffuse>0 0 0 1</diffuse>
-            <specular>0 0 0 0</specular>
-            <emissive>1 1 1 1</emissive>
-          </material> 
-        </visual>
-      </link>
-    </model>
+     <!-- A map -->
+    <include>
+      <uri>model://Maze</uri>
+    </include>
 
     <!-- robot model -->
     <model name="my_robot">
@@ -78,7 +25,7 @@
       
       <plugin name='control' filename='librobot_plugin.so'>
 	<velocity>10</velocity>
-	<behavior>0</behavior>
+	<behavior>1</behavior>
       </plugin>
     </model>
   </world>
